@@ -1,0 +1,26 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "ade2f908-1054-4586-bd57-4047b3f79d1c": {
+      "ProjectGuid": "ade2f908-1054-4586-bd57-4047b3f79d1c",
+      "DisplayName": "Models",
+      "ColorIndex": 0
+    },
+    "cc6f81db-7123-45e4-840e-d92838bf3528": {
+      "ProjectGuid": "cc6f81db-7123-45e4-840e-d92838bf3528",
+      "DisplayName": "Mapping",
+      "ColorIndex": 1
+    },
+    "5358edc3-406b-4bdc-92e2-cd1abc2dccf4": {
+      "ProjectGuid": "5358edc3-406b-4bdc-92e2-cd1abc2dccf4",
+      "DisplayName": "GameAPI",
+      "ColorIndex": 2
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    }
+  },
+  "NextColorIndex": 3
+}
