@@ -1,22 +1,30 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Globalization;
 
 namespace Models
 {
     public class Game
     {
-        public Game()
+        Game()
         {
             Tags = new List<Tag>();
+        }
+
+        public Game(string name, Price price, int genreId,Genre genre,  List<Tag> tags) : base()
+        {
+            Name = name;
+            Price = price;
+            GenreId = genreId;
+            Genre = genre;
+            Tags = tags;
         }
 
         public int Id { get; set; }
 
         public string Name { get; set; }
-
-        public decimal Price { get; set; }
-        public string Currency { get; set; }
+            
+        public Price Price { get; set; }       
 
         public int GenreId { get; set; }
 
@@ -24,6 +32,10 @@ namespace Models
 
         public List<Tag> Tags { get; set; }
 
-        // can have one genre can have many tags tags can have many games //seedvame s json 
+        public void SetPrice(Game game, Price price)
+        {
+            game.Price.Amount = price.Amount;
+            game.Price.Currency = price.Currency;
+        }
     }
 }

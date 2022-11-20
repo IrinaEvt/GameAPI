@@ -1,3 +1,4 @@
+using GameAPI.Services;
 using Mapping;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -12,6 +13,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationDBContext>(options => options.UseSqlServer(connectionString));
 
+builder.Services.AddScoped<GameService>();
+builder.Services.AddScoped<GenreService>();
+builder.Services.AddScoped<TagService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Mapping;
 using Models;
-
+using GameAPI.Services;
 
 namespace GameAPI
 {
@@ -11,26 +11,20 @@ namespace GameAPI
     [ApiController]
     public class GenreController : ControllerBase
     {
-        private ApplicationDBContext dbContext;
+        private GenreService genreService;
 
-        public GenreController(ApplicationDBContext _dbContext)
+        public GenreController(GenreService _genreService)
         {
-            dbContext = _dbContext;
+            this.genreService = _genreService;
         }
-        
+
 
         [HttpPost]
         [Route("SetGenre")]
         public async Task<IActionResult> setGenreAsync([FromBody] SetGenreRequest request)
         {
-            var newGenre = new Genre
-            {
-                Name = request.Name,
-            };
+            await genreService.SetGenre(request.Name);
 
-            Console.WriteLine("TEEEEESSTTTT");
-            await dbContext.Genres.AddAsync(newGenre);
-            await dbContext.SaveChangesAsync();
             return Ok();
         }
 

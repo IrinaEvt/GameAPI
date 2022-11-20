@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Models;
 using Mapping;
-using System.Globalization;
+using GameAPI.Services;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace GameAPI
@@ -11,102 +12,73 @@ namespace GameAPI
     public class GameController : ControllerBase
     {
 
-        IEnumerable<string> currencySymbols = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
-                .Select(x => (new RegionInfo(x.LCID)).ISOCurrencySymbol)
-                .Distinct()
-                .OrderBy(x => x);
-
         private ApplicationDBContext _dbContext;
+        private GameService gameService;
 
-        public GameController(ApplicationDBContext dbContext)
+        public GameController(ApplicationDBContext dbContext, GameService _gameService)
         {
             this._dbContext = dbContext;
+            this.gameService = _gameService;
         }
+
+
 
         [HttpGet]
-        [Route("GetGame")]
-        public IActionResult getGame([FromBody] GetGameRequest request)
+        [Route("GetGameById")]
+        public async Task<IActionResult> GetGameById([FromQuery] GetGameRequest request)
         {
-            var game = _dbContext.Games.First(x => x.Id == request.GameId);
 
-            var gameResponse = new GetGameResponse();
+            GameService.GetGameResponse gameResponse = await gameService.getGameById();
 
-            gameResponse.Id = game.Id;
-            gameResponse.Name = game.Name;
-            gameResponse.Price = game.Price;
-            gameResponse.Currency = game.Currency;
-            gameResponse.GenreId = game.GenreId;
-            gameResponse.GenreName = _dbContext.Genres.Where(g => g.Id == game.GenreId).First().Name;
-            gameResponse.Tags = new List<TagResponse>();
-
-            var tags = _dbContext.Tags.Where(t => t.Games.Contains(game)).ToList();
-            foreach (var tag in tags)
+            if (gameResponse is null)
             {
-                var tagResponse = new TagResponse();
-                tagResponse.Id = tag.Id;
-                tagResponse.Name = tag.Name;
-
-                gameResponse.Tags.Add(tagResponse);
+                return BadRequest();
             }
-            return Ok(gameResponse);
+            else
+            {
+                return Ok(gameResponse);
+            }
         }
+
 
         public class GetGameRequest
         {
             public int GameId { get; set; }
+
         }
 
-        public class TagResponse
+
+        [HttpGet]
+        [Route("GetGames")]
+        public async Task<ActionResult> GetGames()
         {
-            public int Id { get; set; }
-
-            public string Name { get; set; }
-        }
-
-        public class GetGameResponse
-        {
-            public int Id { get; set; }
-
-            public string Name { get; set; }
-
-            public decimal Price { get; set; }
-            public string Currency { get; set; }
-
-            public int GenreId { get; set; }
-
-            public string GenreName { get; set; }
-
-            public List<TagResponse> Tags { get; set; }
+            List<GameService.GetGameResponse> games = await gameService.getListOfGames();
+            if (games.Count > 0)
+            {
+                return Ok(games);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost]
         [Route("SetGame")]
         public async Task<IActionResult> setGameAsync([FromBody] SetGameRequest request)
         {
-            var Genre = await _dbContext.Genres.FindAsync(request.GenreId);
-            var tags = new List<Tag>();
-            foreach (int tagId in request.TagIds)
-            {
-                var Tag = await _dbContext.Tags.FindAsync(tagId);
-                tags.Add(Tag);
-            }
 
+            gameService.SetGame(request);
+            return Ok();
 
+        }
 
-            var newGame = new Game
-            {
-                Name = request.Name,
-                Price = request.Price ,
-                Currency = request.Currency ,
-                GenreId = request.GenreId,
-                Genre = Genre,
-                Tags = tags,
-            };
+        [HttpPost]
+        [Route("SetPrice")]
+        public async Task<ActionResult> SetPrice([FromBody] SetPriceRequest request)
+        {
 
-
-
-            await _dbContext.Games.AddAsync(newGame);
-            await _dbContext.SaveChangesAsync();
+            gameService.SetPrice(request);
             return Ok();
 
         }
@@ -114,15 +86,29 @@ namespace GameAPI
 
         public class SetGameRequest
         {
-            public string Name { get; set; }
-            public decimal Price { get; set; }
 
-            public string Currency { get; set; }
+            SetGameRequest()
+            {
+                TagIds = new List<int>();
+            }
+
+            public string Name { get; set; }
+
+            public Price Price { get; set; }
+
             public int GenreId { get; set; }
 
-            public List<int> TagIds
-            { get; set; }
+            public List<int> TagIds { get; set; }
 
+        }
+
+        public class SetPriceRequest
+        {
+            [Required]
+            public int? GameId { get; set; }
+
+            [Required]
+            public Price Price { get; set; }
 
         }
 
@@ -135,7 +121,7 @@ namespace GameAPI
         }
         */
 
-
+        /*
         [HttpGet]
         [Route("GetGameById")]
         public IActionResult GetGameByID(int id)
@@ -143,42 +129,7 @@ namespace GameAPI
             var game = _dbContext.Games.Where(x => x.Id == id).FirstOrDefault();
             return Ok(game);
         }
-
-
-    
-
-        [HttpGet]
-        [Route("GetGames")]
-        public async Task<ActionResult> Get()
-        {
-            var games = _dbContext.Games.ToList();
-            return Ok(games);
-
-        }
-
-        [HttpPost]
-        [Route("SetPrice")]
-        public async Task<ActionResult> SetPrice([FromBody] SetPriceRequest request)
-        {
-            var game = _dbContext.Games.Find(request.GameId);
-            game.Price = request.Price;
-            game.Currency = request.Currency;
-
-
-            await _dbContext.SaveChangesAsync();
-            return Ok(game);
-
-        }
-
-
-        public class SetPriceRequest
-        {
-            public int GameId { get; set; }
-            public decimal Price { get; set; }
-
-            public string Currency { get; set; }
-
-        }
+        */
 
     }
 }

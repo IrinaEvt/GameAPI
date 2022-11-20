@@ -2,6 +2,7 @@
 
 using Models;
 using Mapping;
+using GameAPI.Services;
 
 namespace GameAPI
 {
@@ -12,10 +13,11 @@ namespace GameAPI
     public class TagController : ControllerBase
     {
 
-        private ApplicationDBContext dbContext;
-        public TagController(ApplicationDBContext _dbContext)
+        private TagService tagService;
+
+        public TagController(TagService _tagService)
         {
-            dbContext = _dbContext;
+            this.tagService = _tagService;
         }
 
 
@@ -23,14 +25,9 @@ namespace GameAPI
         [Route("SetTag")]
         public async Task<IActionResult> setTagAsync([FromBody] SetTagRequest request)
         {
-            var newTag = new Tag
-            {
-                Name = request.Name,
-            };
-
-            await dbContext.Tags.AddAsync(newTag);
-            await dbContext.SaveChangesAsync();
+            await tagService.SetTag(request.Name);
             return Ok();
+
         }
 
 
